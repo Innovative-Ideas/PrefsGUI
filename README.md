@@ -1,6 +1,6 @@
 # PrefsGUI
 
-Accessor like variable and GUI set for Unity PlayerPrefs / JSON file
+Accessor and GUI set for Unity PlayerPrefs / JSON file
 
 [Unity Package](PrefsGUI.unitypackage)
 
@@ -61,14 +61,15 @@ public class PrefsGUISample : PrefsGUISampleBase
 
 ![](Docs/PrefsGUIEditor.gif)
 - List up Prefs and can modify 
-- Can feedback current value to default
+- You can also feed back the current value as default value
+- You can edit the key prefix for each GameObject by displaying it in order of GameObject
 
 
 # SyncOverUNET
 
 ![](Docs/SyncOverUNET.gif)
 - auto sync All Prefs
-- can ignore it by specifying it with EditorWindow
+- You can ignore it by specifying it with EditorWindow
 
 
 # Switch PlayerPrefs / JSON

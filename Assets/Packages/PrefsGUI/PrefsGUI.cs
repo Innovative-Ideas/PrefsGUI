@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using PrefsWrapper;
 using System.IO;
 using System.Collections;
@@ -66,7 +65,7 @@ namespace PrefsGUI
         {
             return OnGUIStrandardStyle((float v, ref string unparsedStr) =>
             {
-                GUILayout.Label(label ?? key);
+                GUIUtil.PrefixLabel(label ?? key);
                 return GUIUtil.Slider(v, min, max, ref unparsedStr);
             });
         }
@@ -76,6 +75,13 @@ namespace PrefsGUI
     public class PrefsBool : PrefsParam<bool>
     {
         public PrefsBool(string key, bool defaultValue = default(bool)) : base(key, defaultValue) { }
+        public bool OnGUIToggle(string label = null)
+        {
+            return OnGUIStrandardStyle((bool v, ref string unparsedStr) =>
+            {
+                return GUILayout.Toggle(v, label);
+            });
+        }
     }
 
     [Serializable]
@@ -275,8 +281,8 @@ namespace PrefsGUI
     {
         public PrefsVector(string key, T defaultValue = default(T)) : base(key, defaultValue) { }
 
-        protected override T defaultMin { get { return (T)typeof(T).InvokeMember("zero", BindingFlags.Static | BindingFlags.GetProperty, null, null, null); } }
-        protected override T defaultMax { get { return (T)typeof(T).InvokeMember("one", BindingFlags.Static | BindingFlags.GetProperty, null, null, null); } }
+        protected override T defaultMin { get { return (T)typeof(T).GetProperty("zero").GetValue(null); } }
+        protected override T defaultMax { get { return (T)typeof(T).GetProperty("one").GetValue(null); } }
 
         static readonly string[] _defaultElementLabels = new[] { "x", "y", "z", "w" };
         protected override string[] defaultEelementLabels
@@ -322,11 +328,11 @@ namespace PrefsGUI
                 {
                     var foldStr = foldOpen ? "▼" : "▶";
 
-                    foldOpen ^= GUILayout.Button(foldStr + (label ?? key), GUIUtil.Style.FoldoutPanelStyle);
+                    foldOpen ^= GUIUtil.Prefix((width) => GUILayout.Button(foldStr + (label ?? key), GUIUtil.Style.FoldoutPanelStyle, GUILayout.Width(width)));
 
                     v = foldOpen
                         ? GUIUtil.Slider(v, min, max, ref unparsedStr, "", elementLabels)
-                        : GUIUtil.Field(v, ref unparsedStr);
+                        : GUIUtil.Field(v, ref unparsedStr, null);
 
                     OnGUISliderRight(v);
                     //GUILayout.FlexibleSpace();
@@ -409,7 +415,7 @@ namespace PrefsGUI
         {
             if (!isCachedObj)
             {
-                cachedObj = (object)_Get();
+                cachedObj = _Get();
                 isCachedObj = true;
             }
 
@@ -422,7 +428,11 @@ namespace PrefsGUI
 
         public override bool OnGUI(string label = null)
         {
-            return OnGUIStrandardStyle((InnerT v, ref string unparsedStr) => GUIUtil.Field<InnerT>(v, ref unparsedStr, label ?? key));
+            return OnGUIStrandardStyle((InnerT v, ref string unparsedStr) =>
+            {
+                GUIUtil.PrefixLabel(label ?? key);
+                return GUIUtil.Field(v, ref unparsedStr, null);
+            });
         }
 
         public override bool IsDefault { get { return Compare(ToInner(defaultValue), _Get()); } }
@@ -471,7 +481,7 @@ namespace PrefsGUI
         {
             var label = Compare(_Get(), ToInner(defaultValue)) ? "default" : "<color=red>default</color>";
 
-            var ret = GUILayout.Button(label, GUILayout.Width(60f));
+            var ret = GUILayout.Button(label, GUILayout.ExpandWidth(false));
             if (ret)
             {
                 Set(defaultValue);

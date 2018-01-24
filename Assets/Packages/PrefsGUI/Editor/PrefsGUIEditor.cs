@@ -2,29 +2,10 @@
 using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace PrefsGUI
 {
-
-    public abstract class PrefsGUIEditorBase : EditorWindow
-    {
-        protected IEnumerable<PrefsParam> PrefsList { get { return PrefsParam.all.Values.OrderBy(prefs => prefs.key); } }
-
-        void OnGUI()
-        {
-            var buttunStyleOrig = GUI.skin.button;
-            var buttonStyle = new GUIStyle(buttunStyleOrig);
-            buttonStyle.richText = true;
-            GUI.skin.button = buttonStyle;
-
-            OnGUIInternal();
-
-            GUI.skin.button = buttunStyleOrig;
-        }
-
-        protected abstract void OnGUIInternal();
-    }
-
     public class PrefsGUIEditor : PrefsGUIEditorBase
     {
         [MenuItem("Window/PrefsGUI")]
@@ -32,6 +13,15 @@ namespace PrefsGUI
         {
             GetWindow<PrefsGUIEditor>("PrefsGUI");
         }
+
+        public enum Order
+        {
+            AtoZ,
+            GameObject,
+
+        }
+
+        Order _order;
 
         Vector2 scrollPosition;
         SetCurrentToDefaultWindow setCurrentToDefaultWindow;
@@ -55,11 +45,19 @@ namespace PrefsGUI
             GUI.enabled = currentToDefaultEnable;
             if (GUILayout.Button("Open Current To Default Window"))
             {
-                if ( setCurrentToDefaultWindow == null ) setCurrentToDefaultWindow = CreateInstance<SetCurrentToDefaultWindow>();
+                if (setCurrentToDefaultWindow == null) setCurrentToDefaultWindow = CreateInstance<SetCurrentToDefaultWindow>();
                 setCurrentToDefaultWindow.parentWindow = this;
                 setCurrentToDefaultWindow.ShowUtility();
             }
             GUI.enabled = true;
+
+            GUILayout.Space(8f);
+
+            using (var h = new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Order");
+                _order = (Order)GUILayout.SelectionGrid((int)_order, System.Enum.GetNames(typeof(Order)), 5);
+            }
 
             GUILayout.Space(8f);
 
@@ -68,90 +66,203 @@ namespace PrefsGUI
                 scrollPosition = sc.scrollPosition;
 
                 var sync = FindObjectOfType<PrefsGUISync>();
+                if (sync != null) GUILayout.Label("sync");
 
-                PrefsList.ToList().ForEach(prefs =>
+
+                if (Order.GameObject == _order)
                 {
-                    using (var h = new GUILayout.HorizontalScope())
+                    _goParams.Where(dic => dic.Key != null).OrderBy(dic => dic.Key.name).ToList().ForEach(pair =>
                     {
-                        if (sync != null)
+                        var go = pair.Key;
+                        var prefsList = pair.Value;
+
+                        LabelWithEditPrefix(sync, go.name, go, prefsList);
+
+                        GUIUtil.Indent(() =>
                         {
-                            var key = prefs.key;
-                            var isSync = !sync._ignoreKeys.Contains(key);
-
-                            if (isSync != GUILayout.Toggle(isSync, "", GUILayout.Width(16f)))
+                            prefsList.ForEach(prefs =>
                             {
-                                if (isSync) sync._ignoreKeys.Add(key);
-                                else sync._ignoreKeys.Remove(key);
-                            }
-                        }
-
-                        prefs.OnGUI();
-                    }
-                });
-            }
-
-            if ((setCurrentToDefaultWindow!= null) && Event.current.type == EventType.Repaint) setCurrentToDefaultWindow.Repaint();
-        }
-    }
-
-
-    public class SetCurrentToDefaultWindow : PrefsGUIEditorBase
-    {
-        public PrefsGUIEditor parentWindow;
-        Dictionary<string, bool> checkedList = new Dictionary<string, bool>();
-
-        Vector2 scrollPosition;
-        bool checkAll;
-
-        protected override void OnGUIInternal()
-        {
-            var prefsList = PrefsList.Where(prefs => !prefs.IsDefault).ToList();
-            prefsList.Where(prefs => !checkedList.ContainsKey(prefs.key)).Select(prefs => prefs.key).ToList().ForEach(key => checkedList[key] = true);
-
-
-            EditorGUILayout.HelpBox("\nSelect Prefs to change Default.\n", MessageType.None);
-
-            if ( checkAll != GUILayout.Toggle(checkAll, ""))
-            {
-                checkAll = !checkAll;
-                prefsList.ForEach(prefs => checkedList[prefs.key] = checkAll);
-            }
-
-            using (var sc = new GUILayout.ScrollViewScope(scrollPosition))
-            {
-                scrollPosition = sc.scrollPosition;
-                prefsList.ForEach(prefs =>
+                                using (var h = new GUILayout.HorizontalScope())
+                                {
+                                    SyncToggle(sync, prefs);
+                                    prefs.OnGUI();
+                                }
+                            });
+                        });
+                    });
+                }
+                else
                 {
-                    var key = prefs.key;
-                    bool check = checkedList[key];
-
-                    using (var h0 = new GUILayout.HorizontalScope())
+                    PrefsList.ToList().ForEach(prefs =>
                     {
-                        if (check != GUILayout.Toggle(check, "", GUILayout.Width(20f))) checkedList[key] = !check;
-                        GUI.enabled = false;
-                        prefs.OnGUI();
-                        GUI.enabled = true;
-                    }
-                });
+                        using (var h = new GUILayout.HorizontalScope())
+                        {
+                            if (sync != null)
+                            {
+                                var key = prefs.key;
+                                var isSync = !sync._ignoreKeys.Contains(key);
+
+                                if (isSync != GUILayout.Toggle(isSync, "", GUILayout.Width(16f)))
+                                {
+                                    Undo.RecordObject(sync, "Change PrefsGUI sync flag");
+
+                                    if (isSync) sync._ignoreKeys.Add(key);
+                                    else sync._ignoreKeys.Remove(key);
+                                }
+                            }
+
+                            prefs.OnGUI();
+                        }
+                    });
+                }
             }
 
+            if ((setCurrentToDefaultWindow != null) && Event.current.type == EventType.repaint) setCurrentToDefaultWindow.Repaint();
+        }
 
-            var checkPrefsList = prefsList.Where(prefs => checkedList[prefs.key]).ToList();
 
-            GUILayout.Space(8f);
+        Dictionary<GameObject, List<PrefsParam>> _goParams = new Dictionary<GameObject, List<PrefsParam>>();
 
-            GUI.enabled = checkPrefsList.Any();
-            if ( GUILayout.Button("SetCurrentToDefault"))
+        float _interaval = 1f;
+        float _lastTime;
+
+        private void Update()
+        {
+            var time = (float)EditorApplication.timeSinceStartup;
+            if (time - _lastTime > _interaval)
             {
-                checkPrefsList.ForEach(prefs =>
-                {
-                    prefs.SetCurrentToDefault();
-                });
-
-                Close();
-                parentWindow.Repaint();
+                UpdateCompParam();
+                _lastTime = time;
             }
-            GUI.enabled = true;
+        }
+
+        void UpdateCompParam()
+        {
+            var gos = FindObjectsOfType<GameObject>();
+            for (var iGo = 0; iGo < gos.Length; ++iGo)
+            {
+                var go = gos[iGo];
+                var comps = go.GetComponents<Component>();
+                var prefsList = new List<PrefsParam>();
+
+                for (var i = 0; i < comps.Length; ++i)
+                {
+                    var comp = comps[i];
+                    var fields = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    prefsList.AddRange(SearchChildPrefsParams(comp, fields));
+                }
+
+                if (prefsList.Any())
+                {
+                    _goParams[go] = prefsList;
+                }
+            }
+        }
+
+        List<PrefsParam> SearchChildPrefsParams(object obj, FieldInfo[] fields, int level = 0)
+        {
+            var ret = new List<PrefsParam>();
+
+            for (var fi = 0; fi < fields.Length; ++fi)
+            {
+                var field = fields[fi];
+                var fieldType = field.FieldType;
+                var fieldObj = field.GetValue(obj);
+
+                if (fieldType.IsSubclassOf(typeof(PrefsParam)))
+                {
+                    ret.Add(fieldObj as PrefsParam);
+                }
+                else if (
+                    fieldObj != null
+                    && !fieldType.IsPrimitive
+                    && !fieldType.IsSubclassOf(typeof(Component))
+                    && fieldType.GetCustomAttribute<System.SerializableAttribute>() != null
+                    && fieldType.Assembly.GetName().Name == "Assembly-CSharp"
+                        )
+                {
+                    ret.AddRange(SearchChildPrefsParams(fieldObj, fieldType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)));
+                }
+            }
+
+            return ret;
+        }
+
+
+        void LabelWithEditPrefix(PrefsGUISync sync, string label, Object target, List<PrefsParam> prefsList)
+        {
+            using (var h = new GUILayout.HorizontalScope())
+            {
+                SyncToggleList(sync, prefsList);
+                GUILayout.Label(label);
+
+                const char separator = '.';
+                var prefix = prefsList.Select(p => p.key.Split(separator)).Where(sepKeys => sepKeys.Length > 1).FirstOrDefault()?.First();
+
+                GUILayout.Label("KeyPrefix:");
+
+                var prefixNew = GUILayout.TextField(prefix, GUILayout.MinWidth(100f));
+                if (prefix != prefixNew)
+                {
+                    Undo.RecordObject(target, "Change PrefsGUI Prefix");
+                    EditorUtility.SetDirty(target);
+
+                    var prefixWithSeparator = string.IsNullOrEmpty(prefixNew) ? "" : prefixNew + separator;
+                    prefsList.ForEach(p =>
+                    {
+                        p.key = prefixWithSeparator + p.key.Split(separator).Last();
+                    });
+                }
+
+                GUILayout.FlexibleSpace();
+            }
+        }
+
+        void SyncToggle(PrefsGUISync sync, PrefsParam prefs)
+        {
+            if (sync != null)
+            {
+                var key = prefs.key;
+                var isSync = !sync._ignoreKeys.Contains(key);
+
+                if (isSync != GUILayout.Toggle(isSync, "", GUILayout.Width(16f)))
+                {
+                    Undo.RecordObject(sync, "Change PrefsGUI sync flag");
+                    EditorUtility.SetDirty(sync);
+
+                    if (isSync) sync._ignoreKeys.Add(key);
+                    else sync._ignoreKeys.Remove(key);
+                }
+            }
+        }
+
+        void SyncToggleList(PrefsGUISync sync, List<PrefsParam> prefsList)
+        {
+            if (sync != null)
+            {
+                var keys = prefsList.Select(p => p.key).ToList();
+                var syncKeys = keys.Except(sync._ignoreKeys);
+                var syncKeysCount = syncKeys.Count();
+                var isSync = syncKeys.Any();
+                var mixed = syncKeysCount != 0 && syncKeysCount != prefsList.Count;
+
+                if (isSync != GUILayout.Toggle(isSync, "", mixed ? "ToggleMixed" : GUI.skin.toggle))
+                {
+                    isSync = !isSync;
+                    Undo.RecordObject(sync, "Change PrefsGUIs sync flag");
+                    EditorUtility.SetDirty(sync);
+
+                    if (!isSync)
+                    {
+                        sync._ignoreKeys.AddRange(syncKeys);
+                    }
+                    else
+                    {
+                        keys.ForEach(k => sync._ignoreKeys.Remove(k));
+                    }
+                }
+            }
         }
     }
 }
