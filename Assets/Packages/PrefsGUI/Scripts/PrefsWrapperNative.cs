@@ -9,6 +9,10 @@ namespace PrefsWrapperNative
         public static void Save() { PlayerPrefs.Save(); }
         public static void Load() { /* always loaded. */}
         public static void DeleteAll() { PlayerPrefs.DeleteAll(); }
+		static string filePathErrorMsg = "Using Unity's PlayerPrefs to save/load data. \nIn PrefsWrapper.cs use 'PrefsWrapperJson' to be able to set file location.";
+		public static void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) { Debug.LogWarning(filePathErrorMsg); }
+		public static PrefsGUI.Prefs.FileLocation GetFileLocation() { return PrefsGUI.Prefs.FileLocation.NumLocations; }
+		public static void SetFilePathPrefix(string prefix) { Debug.LogWarning(filePathErrorMsg); }
     }
 
     class PlayerPrefsStrandard<T>

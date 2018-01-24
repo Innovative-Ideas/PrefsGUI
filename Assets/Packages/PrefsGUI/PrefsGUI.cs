@@ -12,9 +12,34 @@ namespace PrefsGUI
     #region static class
     public class Prefs
     {
+		// used for Json version of data.
+		// PrefsWrapperNative uses Unity's player prefs and the save location is fixed
+		public enum FileLocation
+		{
+			PersistantData,
+			StreamingAssets,
+
+			NumLocations
+		}
+
         public static void Save() { PrefsGlobal.Save(); }
+		public static void SaveInAllLocations()
+		{
+			FileLocation backup = GetFileLocation();
+			for(int i = 0; i < (int)FileLocation.NumLocations; ++i)
+			{
+				SetFileLocation((FileLocation)i);
+				Save();
+			}
+
+			// restore origional location
+			SetFileLocation(backup);
+		}
         public static void Load() { PrefsGlobal.Load(); }
         public static void DeleteAll() { PrefsGlobal.DeleteAll(); }
+		public static void SetFileLocation( FileLocation fileLocation) { PrefsGlobal.SetFileLocation(fileLocation); }
+		public static FileLocation GetFileLocation() { return PrefsGlobal.GetFileLocation(); }
+		public static void SetFilePathPrefix(string prefix) { PrefsGlobal.SetFilePathPrefix(prefix); }
     }
     #endregion
 

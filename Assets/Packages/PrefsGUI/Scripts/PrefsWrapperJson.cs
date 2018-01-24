@@ -20,12 +20,20 @@ namespace PrefsWrapperJson
 
         public void Set(string key, object value) { _dic[key] = value; }
 
-        string path { get { return Application.persistentDataPath + "/Prefs.json"; } }
+        string path { get { return pathPrefix + "/Prefs.json"; } }
 
         public void Save()
         {
+			string tempPath = path;
+
+			// make sure the directory exists for the file path. 
+			// (If it doesn't exist we will create it)
+			string directory = Path.GetDirectoryName(tempPath);
+			Directory.CreateDirectory(directory);
+
+			Debug.Log(@tempPath);
             var str = MiniJSON.Json.Serialize(_dic);
-            File.WriteAllText(path, str);
+            File.WriteAllText(@tempPath, str);
         }
 
         public void Load()
@@ -41,6 +49,29 @@ namespace PrefsWrapperJson
         {
             _dic.Clear();
         }
+
+		private PrefsGUI.Prefs.FileLocation _fileLocation = PrefsGUI.Prefs.FileLocation.PersistantData;
+		private string _PathPrefix = "";
+		public void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) {	_fileLocation = fileLocation; }
+		public PrefsGUI.Prefs.FileLocation GetFileLocation() { return _fileLocation; }
+		public void SetFilePathPrefix(string prefix)
+		{
+			_PathPrefix = prefix;
+		}
+		private string pathPrefix
+		{
+			get
+			{
+				string ret = "";
+				switch(_fileLocation)
+				{
+					case PrefsGUI.Prefs.FileLocation.PersistantData: ret = Application.persistentDataPath; break;
+					case PrefsGUI.Prefs.FileLocation.StreamingAssets: ret = Application.streamingAssetsPath; break;
+				}
+				ret += _PathPrefix;
+				return ret;
+			}
+		}
     }
 
     class PlayerPrefsGlobal
@@ -48,6 +79,9 @@ namespace PrefsWrapperJson
         public static void Save() { JSONData.Instance.Save(); }
         public static void Load() { JSONData.Instance.Load(); }
         public static void DeleteAll() { JSONData.Instance.DeleteAll(); }
+		public static void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) { JSONData.Instance.SetFileLocation(fileLocation); }
+		public static PrefsGUI.Prefs.FileLocation GetFileLocation() { return JSONData.Instance.GetFileLocation(); }
+		public static void SetFilePathPrefix(string prefix) { JSONData.Instance.SetFilePathPrefix(prefix); }
     }
 
 

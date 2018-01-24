@@ -75,7 +75,7 @@ namespace PrefsGUI
                 _vector2 = GUIUtil.Slider(_vector2, Vector2.zero, Vector2.one, "Slider(Vector2)");
                 _vector3 = GUIUtil.Slider(_vector3, Vector3.zero, Vector3.one, "Slider(Vector3)");
                 _vector4 = GUIUtil.Slider(_vector4, Vector4.zero, Vector4.one, "Slider(Vector4)");
-                _rect = GUIUtil.Slider(_rect, Rect.zero, new Rect(1f,1f,1f,1f), "Slider(Rect)");
+                _rect = GUIUtil.Slider(_rect, new Rect(0,0,0,0), new Rect(1f,1f,1f,1f), "Slider(Rect)");
             });
 
             _sliderFold.Add("SliderWithUnparsedStr", () =>
@@ -85,7 +85,7 @@ namespace PrefsGUI
                 _vector2 = GUIUtil.Slider(_vector2, Vector2.zero, Vector2.one, ref _vector2Str, "Slider(Vector2)");
                 _vector3 = GUIUtil.Slider(_vector3, Vector3.zero, Vector3.one, ref _vector3Str, "Slider(Vector3)");
                 _vector4 = GUIUtil.Slider(_vector4, Vector4.zero, Vector4.one, ref _vector4Str, "Slider(Vector4)");
-                _rect = GUIUtil.Slider(_rect, Rect.zero, new Rect(1f, 1f, 1f, 1f), ref _rectStr, "Slider(Rect)");
+                _rect = GUIUtil.Slider(_rect, new Rect(0,0,0,0), new Rect(1f, 1f, 1f, 1f), ref _rectStr, "Slider(Rect)");
             },
             true);
         }

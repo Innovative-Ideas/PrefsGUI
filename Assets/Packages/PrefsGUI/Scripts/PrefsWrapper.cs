@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+// Pick one to decide how prefs file is saved
 //using PrefsWrapperNative;
 using PrefsWrapperJson;
 
@@ -12,6 +14,9 @@ namespace PrefsWrapper
         public static void Save() { PlayerPrefsGlobal.Save(); }
         public static void Load() { PlayerPrefsGlobal.Load(); }
         public static void DeleteAll() { PlayerPrefsGlobal.DeleteAll(); }
+		public static void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) { PlayerPrefsGlobal.SetFileLocation(fileLocation); }
+		public static PrefsGUI.Prefs.FileLocation GetFileLocation() { return PlayerPrefsGlobal.GetFileLocation(); }
+		public static void SetFilePathPrefix(string prefix) { PlayerPrefsGlobal.SetFilePathPrefix(prefix); }
     }
 
 
