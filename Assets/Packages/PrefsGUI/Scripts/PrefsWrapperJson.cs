@@ -29,7 +29,8 @@ namespace PrefsWrapperJson
 			// make sure the directory exists for the file path. 
 			// (If it doesn't exist we will create it)
 			string directory = Path.GetDirectoryName(tempPath);
-			Directory.CreateDirectory(directory);
+			if(Directory.Exists(directory) == false)
+				Directory.CreateDirectory(directory);
 
 			Debug.Log(@tempPath);
             var str = MiniJSON.Json.Serialize(_dic);
