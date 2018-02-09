@@ -51,6 +51,17 @@ namespace PrefsWrapperJson
             _dic.Clear();
         }
 
+		// Returns DateTime.MinValue if file doens't exist
+		public DateTime GetFileTimeStamp()
+		{
+			if (File.Exists(path))
+			{
+				DateTime dt = File.GetLastWriteTime(path);
+				return dt;
+			}
+			return DateTime.MinValue;
+		}
+
 		private PrefsGUI.Prefs.FileLocation _fileLocation = PrefsGUI.Prefs.FileLocation.PersistantData;
 		private string _PathPrefix = "";
 		public void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) {	_fileLocation = fileLocation; }
@@ -83,7 +94,9 @@ namespace PrefsWrapperJson
 		public static void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) { JSONData.Instance.SetFileLocation(fileLocation); }
 		public static PrefsGUI.Prefs.FileLocation GetFileLocation() { return JSONData.Instance.GetFileLocation(); }
 		public static void SetFilePathPrefix(string prefix) { JSONData.Instance.SetFilePathPrefix(prefix); }
-    }
+		public static DateTime GetFileTimeStamp() { return JSONData.Instance.GetFileTimeStamp();  }
+
+	}
 
 
     class PlayerPrefsStrandard<T>

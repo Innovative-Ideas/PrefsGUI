@@ -17,7 +17,8 @@ namespace PrefsWrapper
 		public static void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) { PlayerPrefsGlobal.SetFileLocation(fileLocation); }
 		public static PrefsGUI.Prefs.FileLocation GetFileLocation() { return PlayerPrefsGlobal.GetFileLocation(); }
 		public static void SetFilePathPrefix(string prefix) { PlayerPrefsGlobal.SetFilePathPrefix(prefix); }
-    }
+		public static DateTime GetFileTimeStamp() { return PlayerPrefsGlobal.GetFileTimeStamp(); }
+	}
 
 
     public static class PlayerPrefs<T>

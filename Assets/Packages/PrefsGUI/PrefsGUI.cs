@@ -39,6 +39,7 @@ namespace PrefsGUI
 		public static void SetFileLocation( FileLocation fileLocation) { PrefsGlobal.SetFileLocation(fileLocation); }
 		public static FileLocation GetFileLocation() { return PrefsGlobal.GetFileLocation(); }
 		public static void SetFilePathPrefix(string prefix) { PrefsGlobal.SetFilePathPrefix(prefix); }
+		public static DateTime GetFileTimeStamp() { return PrefsGlobal.GetFileTimeStamp(); }
     }
     #endregion
 

@@ -13,7 +13,8 @@ namespace PrefsWrapperNative
 		public static void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) { Debug.LogWarning(filePathErrorMsg); }
 		public static PrefsGUI.Prefs.FileLocation GetFileLocation() { return PrefsGUI.Prefs.FileLocation.NumLocations; }
 		public static void SetFilePathPrefix(string prefix) { Debug.LogWarning(filePathErrorMsg); }
-    }
+		public static DateTime GetFileTimeStamp() { Debug.LogWarning("PlayerPrefs file TimeStamp Unknown"); return DateTime.MinValue; }
+	}
 
     class PlayerPrefsStrandard<T>
     {
