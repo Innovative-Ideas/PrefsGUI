@@ -3,13 +3,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-        [System.Serializable]
-        public class CustomClass
-        {
-          //  public string name;
-            //public int intValue;
-        }
-
 namespace PrefsGUI
 {
 
@@ -21,20 +14,18 @@ namespace PrefsGUI
             public PrefsEnum(string key, EnumSample defaultValue = default(EnumSample)) : base(key, defaultValue) { }
         }
 
+        [System.Serializable]
+        public class CustomClass
+        {
+            public string name;
+            public int intValue;
+        }
 
+        [System.Serializable]
+        public class PrefsList : PrefsList<CustomClass> { public PrefsList(string key, System.Func<List<CustomClass>, List<CustomClass>> customOnGUI = null) : base(key, customOnGUI) { } }
 
-		List<CustomClass> testList = new List<CustomClass>();
-
-		[System.Serializable]
-		public class PrefsList : PrefsList<CustomClass>
-		{
-			// constructor
-			//public PrefsList( string key, System.Func<List<CustomClass>, List<CustomClass>> customOnGUI = null ) : base( key, customOnGUI ) { }
-			public PrefsList( string key, System.Func<List<CustomClass>, List<CustomClass>> customOnGUI = null ) : base( key, customOnGUI, new List<CustomClass>() ) { }
-		}
-
-		// define PrefsParams with key.
-		public PrefsEnum _prefsEnum = new PrefsEnum("PrefsEnum");
+        // define PrefsParams with key.
+        public PrefsEnum _prefsEnum = new PrefsEnum("PrefsEnum");
         public PrefsString _prefsString = new PrefsString("PrefsString");
         public PrefsInt _prefsInt = new PrefsInt("PrefsInt");
         public PrefsFloat _prefsFloat = new PrefsFloat("PrefsFloat");
@@ -44,22 +35,24 @@ namespace PrefsGUI
         public PrefsVector4 _prefsVector4 = new PrefsVector4("PrefsVector4");
         public PrefsColor _prefsColor = new PrefsColor("PrefsColor");
         public PrefsRect _prefsRect = new PrefsRect("PrefsRect");
-        //public PrefsList _prefsList = new PrefsList("PrefsList");
-        //public PrefsList _prefsListRuntimeGUI = new PrefsList("PrefsListRuntimeGUI");
-        //public PrefsList _prefsListCustomGUI = new PrefsList("PrefsListCustomGUI", (list) =>
-        //{
-        //    list.ForEach(customClass =>
-        //    {
-        //        customClass.name = GUILayout.TextField((customClass.name != null ? customClass.name : ""));
-        //        customClass.intValue = GUIUtil.IntButton(customClass.intValue);
-        //    });
-        //    using (var h = new GUILayout.HorizontalScope())
-        //    {
-        //        if (GUILayout.Button("Add")) list.Add(new CustomClass());
-        //        if (GUILayout.Button("Remove")) list.RemoveAt(list.Count - 1);
-        //    }
-        //    return list;
-        //});
+        public PrefsIPEndPoint _prefsIPEndPoint = new PrefsIPEndPoint("PrefsIPEndPoint");
+
+        public PrefsList _prefsList = new PrefsList("PrefsList");
+        public PrefsList _prefsListRuntimeGUI = new PrefsList("PrefsListRuntimeGUI");
+        public PrefsList _prefsListCustomGUI = new PrefsList("PrefsListCustomGUI", (list) =>
+        {
+            list.ForEach(customClass =>
+            {
+                customClass.name = GUILayout.TextField(customClass.name ?? "");
+                customClass.intValue = GUIUtil.IntButton(customClass.intValue);
+            });
+            using (var h = new GUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Add")) list.Add(new CustomClass());
+                if (GUILayout.Button("Remove")) list.RemoveAt(list.Count - 1);
+            }
+            return list;
+        });
 
 
         protected override void OnGUIInternal()
@@ -78,8 +71,11 @@ namespace PrefsGUI
             _prefsVector4.OnGUISlider();
             _prefsRect.OnGUI();
             _prefsRect.OnGUISlider();
-
             _prefsColor.OnGUI();
+
+
+            _prefsIPEndPoint.OnGUI();
+
             // return true if value was changed
             if (_prefsColor.OnGUISlider())
             {
@@ -89,31 +85,31 @@ namespace PrefsGUI
             }
 
 
-            //// default OnGUI() is NOT user friendly. but PrefsList can save/load parametors.
-            //_prefsList.OnGUI();
+            // default OnGUI() is NOT user friendly. but PrefsList can save/load parametors.
+            _prefsList.OnGUI();
 
 
-            //GUILayout.Label("PrefsListRuntimeGUI");
-            //GUIUtil.Indent(() =>
-            //{
-            //    var list = _prefsListRuntimeGUI.Get();
-            //    list.ForEach(customClass =>
-            //    {
-            //        customClass.name = GUILayout.TextField(customClass.name ?? "");
-            //        customClass.intValue = GUIUtil.IntButton(customClass.intValue);
-            //    });
-            //    using (var h = new GUILayout.HorizontalScope())
-            //    {
-            //        if (GUILayout.Button("Add")) list.Add(new CustomClass() { name = "Elem" + list.Count });
-            //        if (GUILayout.Button("Remove")) list.RemoveAt(list.Count - 1);
+            GUILayout.Label("PrefsListRuntimeGUI");
+            GUIUtil.Indent(() =>
+            {
+                var list = _prefsListRuntimeGUI.Get();
+                list.ForEach(customClass =>
+                {
+                    customClass.name = GUILayout.TextField(customClass.name ?? "");
+                    customClass.intValue = GUIUtil.IntButton(customClass.intValue);
+                });
+                using (var h = new GUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Add")) list.Add(new CustomClass() { name = "Elem" + list.Count });
+                    if (GUILayout.Button("Remove")) list.RemoveAt(list.Count - 1);
 
-            //        _prefsListRuntimeGUI.Set(list);
-            //        _prefsList.OnGUIDefaultButton();
-            //    }
-            //});
+                    _prefsListRuntimeGUI.Set(list);
+                    _prefsList.OnGUIDefaultButton();
+                }
+            });
 
-            //// if you use OnGUI. to set cumstomOnGUI is bettor.
-            //_prefsListCustomGUI.OnGUI();
+            // if you use OnGUI. to set cumstomOnGUI is bettor.
+            _prefsListCustomGUI.OnGUI();
 
             if (GUILayout.Button("Save")) Prefs.Save();
             if (GUILayout.Button("DeleteAll")) Prefs.DeleteAll();
