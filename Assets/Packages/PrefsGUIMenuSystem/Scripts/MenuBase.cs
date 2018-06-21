@@ -8,6 +8,9 @@ namespace PrefsGUI
 		public MenuState menuState = MenuState.Close;
 		public KeyCode toggleKey = KeyCode.None;
 
+		public Color menuButtonColor = Color.white;
+		public Color menuButtonBkgColor = Color.gray;
+
 		Rect _windowRect = new Rect();
 		protected virtual float MinWidth { get { return 500f; } }
 		public virtual string MenuName { get { return  "";} }
