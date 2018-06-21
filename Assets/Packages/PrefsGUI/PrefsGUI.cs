@@ -362,10 +362,10 @@ namespace PrefsGUI
     /// <typeparam name="InnerT"></typeparam>
     public abstract class PrefsParam<OuterT, InnerT> : PrefsParamOuter<OuterT>
     {
-        protected bool isCachedOuter;
+        protected bool isCachedOuter = false;
         protected OuterT cachedOuter;
 
-        protected bool isCachedObj;
+        protected bool isCachedObj = false;
         protected object cachedObj;
 
         protected bool synced;
