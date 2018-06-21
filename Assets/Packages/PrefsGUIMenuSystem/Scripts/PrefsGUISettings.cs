@@ -22,6 +22,8 @@ namespace PrefsGUI
 
 		void Awake()
 		{
+			if(this.isActiveAndEnabled == false)
+				return;
 			PrefsGUI.Prefs.SetFileLocation(fileLocation);
 			PrefsGUI.Prefs.SetFilePathPrefix(pathPrefix);
 
