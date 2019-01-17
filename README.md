@@ -2,8 +2,6 @@
 
 Accessor and GUI set for Unity PlayerPrefs / JSON file
 
-[Unity Package](PrefsGUI.unitypackage)
-
 ![](Docs/PrefsGUI.gif)
 
 ```csharp
@@ -56,6 +54,17 @@ public class PrefsGUISample : PrefsGUISampleBase
 }
 ```
 
+# Install
+Download a `.unitypackage` file from [Release page](https://github.com/fuqunaga/PrefsGUI/releases).
+
+or
+
+Using Pacakge Manager:  
+Add following line to the `dependencies` section in the `Packages/manifest.json`.
+```
+"ga.fuquna.prefsgui": "https://github.com/fuqunaga/PrefsGUI.git"
+```
+
 
 # EditorWindow
 
@@ -82,9 +91,23 @@ https://github.com/fuqunaga/PrefsGUI/blob/master/Assets/Packages/PrefsGUI/Script
 Application.persistentDataPath + "/Prefs.json"
 ```
 
+You can customize by placing PrefsWrapperPathCustom in the scene and set _path field.  
+also can use the Special folders and enviroment variables.
+```
+- %dataPath% -> Application.dataPath
+- %companyName% -> Application.companyName
+- %productName% -> Application.productName
+- other %[word]% -> System.Environment.GetEnvironmentVariable([word])
+```
+
 
 # MaterialPropertyDebugMenu
 
 Auto create material GUI menu
 
 ![](Docs/MaterialPropertyDebugMenu.gif)
+
+
+# References
+MiniJSON  
+https://gist.github.com/darktable/1411710
