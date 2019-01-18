@@ -19,11 +19,11 @@ namespace PrefsGUI.Wrapper.Json
 
         public void Set(string key, object value) { _dic[key] = value; }
 
-<<<<<<< HEAD:Assets/Packages/PrefsGUI/Scripts/PrefsWrapperJson.cs
+
         string path { get { return pathPrefix + "/Prefs.json"; } }
-=======
-        string path => PrefsWrapperPathSelector.path + "/Prefs.json";
->>>>>>> f0741ca2f88c79c91ed7f18396ea31d6d434281d:Runtime/Scripts/PrefsWrapperJson.cs
+
+//        string path => PrefsWrapperPathSelector.path + "/Prefs.json";
+
 
         public void Save()
         {
@@ -35,17 +35,15 @@ namespace PrefsGUI.Wrapper.Json
 			if(Directory.Exists(directory) == false)
 				Directory.CreateDirectory(directory);
 
-			Debug.Log(@tempPath);
+			UnityEngine.Debug.Log(@tempPath);
             var str = MiniJSON.Json.Serialize(_dic);
-<<<<<<< HEAD:Assets/Packages/PrefsGUI/Scripts/PrefsWrapperJson.cs
             File.WriteAllText(@tempPath, str);
-=======
-
+/*
             var p = path;
             var dir = Path.GetDirectoryName(p);
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             File.WriteAllText(p, str);
->>>>>>> f0741ca2f88c79c91ed7f18396ea31d6d434281d:Runtime/Scripts/PrefsWrapperJson.cs
+			*/
         }
 
         public void Load()
@@ -88,8 +86,8 @@ namespace PrefsGUI.Wrapper.Json
 				string ret = "";
 				switch(_fileLocation)
 				{
-					case PrefsGUI.Prefs.FileLocation.PersistantData: ret = Application.persistentDataPath; break;
-					case PrefsGUI.Prefs.FileLocation.StreamingAssets: ret = Application.streamingAssetsPath; break;
+					case PrefsGUI.Prefs.FileLocation.PersistantData: ret = UnityEngine.Application.persistentDataPath; break;
+					case PrefsGUI.Prefs.FileLocation.StreamingAssets: ret = UnityEngine.Application.streamingAssetsPath; break;
 				}
 				ret += _PathPrefix;
 				return ret;
