@@ -21,6 +21,7 @@ namespace PrefsGUI.Wrapper.Json
 
 
         string path { get { return pathPrefix + "/Prefs.json"; } }
+		public string GetFileNameAndPath() { return path; }
 
 //        string path => PrefsWrapperPathSelector.path + "/Prefs.json";
 
@@ -104,6 +105,7 @@ namespace PrefsGUI.Wrapper.Json
 		public static PrefsGUI.Prefs.FileLocation GetFileLocation() { return JSONData.Instance.GetFileLocation(); }
 		public static void SetFilePathPrefix(string prefix) { JSONData.Instance.SetFilePathPrefix(prefix); }
 		public static DateTime GetFileTimeStamp() { return JSONData.Instance.GetFileTimeStamp();  }
+		public static string GetFileNameAndPath() { return JSONData.Instance.GetFileNameAndPath(); }
 
 	}
 

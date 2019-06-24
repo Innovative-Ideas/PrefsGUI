@@ -12,6 +12,8 @@ namespace PrefsGUI
 		public string pathPrefix = "";
 		private Prefs.FileLocation fileLastLoadedFrom = Prefs.FileLocation.PersistantData;
 
+		protected override float MinWidth => 700;
+
 		//[System.Serializable]
 		//public class PrefsEnum : PrefsParam<Prefs.FileLocation>
 		//{
@@ -63,6 +65,8 @@ namespace PrefsGUI
 			GUILayout.Label(string.Format("File Last Loaded From:\t{0}", fileLastLoadedFrom));
 			GUILayout.Label("");
 
+			ShowAllSaveLocationPathsGUI();
+
 			// save to Streaming Assets
 			if (GUILayout.Button("SAVE in Streaming Assets & ALL LOCATIONS"))
 			{
@@ -99,6 +103,33 @@ namespace PrefsGUI
 
 
 			base.OnGUIInternal();
+		}
+
+		void ShowAllSaveLocationPathsGUI()
+		{
+			GUILayout.Label("File Paths:");
+			PrefsGUI.Prefs.FileLocation backup = PrefsGUI.Prefs.GetFileLocation();
+			GUILayout.BeginHorizontal();
+			GUILayout.BeginVertical();
+
+			for(int i = 0; i < (int)PrefsGUI.Prefs.FileLocation.NumLocations; ++i)
+			{
+				GUILayout.Label( ((PrefsGUI.Prefs.FileLocation)i).ToString() );
+			}
+			GUILayout.EndVertical();
+
+			GUILayout.BeginVertical();
+			for(int i = 0; i < (int)PrefsGUI.Prefs.FileLocation.NumLocations; ++i)
+			{
+				PrefsGUI.Prefs.SetFileLocation((PrefsGUI.Prefs.FileLocation)i);
+				GUILayout.Label( PrefsGUI.Prefs.GetFileNameAndPath() );
+			}
+			GUILayout.EndVertical();
+
+			GUILayout.EndHorizontal();
+
+			// restore origional location
+			PrefsGUI.Prefs.SetFileLocation(backup);
 		}
 
 
