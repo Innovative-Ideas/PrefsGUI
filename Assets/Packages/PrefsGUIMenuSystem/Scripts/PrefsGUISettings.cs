@@ -9,10 +9,20 @@ namespace PrefsGUI
 	{
 		[Tooltip("Default File Save/Load location")]
 		public Prefs.FileLocation fileLocation = Prefs.FileLocation.PersistantData;
-		public string pathPrefix = "";
+		[SerializeField]
+		private string pathPrefix = "";
 		private Prefs.FileLocation fileLastLoadedFrom = Prefs.FileLocation.PersistantData;
 
 		protected override float MinWidth => 700;
+
+		// if necessary this function can be overridden to return seperate paths based on the fileLocation type.
+		public virtual string GetPathPrefix( Prefs.FileLocation fileLocation ) { return pathPrefix; }
+
+		public void SetFileLocation( Prefs.FileLocation fileLocation)
+		{
+			PrefsGUI.Prefs.SetFileLocation( fileLocation );
+			PrefsGUI.Prefs.SetFilePathPrefix( GetPathPrefix( fileLocation ) );
+		}
 
 		//[System.Serializable]
 		//public class PrefsEnum : PrefsParam<Prefs.FileLocation>
@@ -21,13 +31,12 @@ namespace PrefsGUI
 		//}
 		//public PrefsEnum _prefsEnum;
 
-
-		void Awake()
+			
+		protected virtual void Awake()
 		{
 			if(this.isActiveAndEnabled == false)
 				return;
-			PrefsGUI.Prefs.SetFileLocation(fileLocation);
-			PrefsGUI.Prefs.SetFilePathPrefix(pathPrefix);
+			SetFileLocation( fileLocation );
 
 			/*
 			// work in progress
@@ -83,9 +92,9 @@ namespace PrefsGUI
 					// load from Streaming Assets
 					if (GUILayout.Button(string.Format("LOAD from {0}", i) ))
 					{
-						PrefsGUI.Prefs.SetFileLocation(i);
+						SetFileLocation(i);
 						PrefsGUILoad();
-						PrefsGUI.Prefs.SetFileLocation(fileLocation);
+						SetFileLocation(fileLocation);
 					}
 				}
 			}
@@ -93,13 +102,13 @@ namespace PrefsGUI
 			GUILayout.Label("Settings File Timestamps:");
 			for (Prefs.FileLocation i = 0; i < Prefs.FileLocation.NumLocations; ++i)
 			{
-				PrefsGUI.Prefs.SetFileLocation(i);
+				SetFileLocation(i);
 				System.DateTime dt = PrefsGUI.Prefs.GetFileTimeStamp();
 				bool validSettingFile = dt.Equals(System.DateTime.MinValue) == false;
 
 				GUILayout.Label(string.Format("{0}:\t {1}", i, validSettingFile ? dt.ToString() : "No File / Unknown"));
 			}
-			PrefsGUI.Prefs.SetFileLocation(fileLocation);
+			SetFileLocation(fileLocation);
 
 
 			base.OnGUIInternal();
@@ -121,7 +130,8 @@ namespace PrefsGUI
 			GUILayout.BeginVertical();
 			for(int i = 0; i < (int)PrefsGUI.Prefs.FileLocation.NumLocations; ++i)
 			{
-				PrefsGUI.Prefs.SetFileLocation((PrefsGUI.Prefs.FileLocation)i);
+				PrefsGUI.Prefs.FileLocation f = (PrefsGUI.Prefs.FileLocation)i; 
+				SetFileLocation( f );
 				GUILayout.Label( PrefsGUI.Prefs.GetFileNameAndPath() );
 			}
 			GUILayout.EndVertical();
@@ -129,7 +139,7 @@ namespace PrefsGUI
 			GUILayout.EndHorizontal();
 
 			// restore origional location
-			PrefsGUI.Prefs.SetFileLocation(backup);
+			SetFileLocation(backup);
 		}
 
 
