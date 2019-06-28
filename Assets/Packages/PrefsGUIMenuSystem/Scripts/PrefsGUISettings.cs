@@ -10,7 +10,10 @@ namespace PrefsGUI
 		[Tooltip("Default File Save/Load location")]
 		public Prefs.FileLocation fileLocation = Prefs.FileLocation.PersistantData;
 		[SerializeField]
+		[Tooltip("By Default, the same path prefix is used for all 'FileLocations'. However per 'FileLocation' path prefixs can be set via code.")]
 		private string pathPrefix = "";
+		[SerializeField]
+		private string hardedCodedPath = "c:/Unity/PrefsGUI/";
 		private Prefs.FileLocation fileLastLoadedFrom = Prefs.FileLocation.PersistantData;
 
 		protected override float MinWidth => 700;
@@ -21,7 +24,7 @@ namespace PrefsGUI
 		public void SetFileLocation( Prefs.FileLocation fileLocation)
 		{
 			PrefsGUI.Prefs.SetFileLocation( fileLocation );
-			PrefsGUI.Prefs.SetFilePathPrefix( GetPathPrefix( fileLocation ) );
+			//PrefsGUI.Prefs.SetFilePathPrefix( fileLocation, GetPathPrefix( fileLocation ) );
 		}
 
 		//[System.Serializable]
@@ -37,7 +40,11 @@ namespace PrefsGUI
 			if(this.isActiveAndEnabled == false)
 				return;
 			SetFileLocation( fileLocation );
-
+			for(Prefs.FileLocation i = 0; i < Prefs.FileLocation.NumLocations; ++i)
+			{
+				Prefs.SetFilePathPrefix(i, GetPathPrefix(i) );
+			}
+			PrefsGUI.Prefs.SetFileLocationHardCodedPath( hardedCodedPath );
 			/*
 			// work in progress
 		//#if (UNITY_EDITOR == false)
@@ -64,11 +71,7 @@ namespace PrefsGUI
 			// pring defaut save location
 
 			GUILayout.Label(string.Format("Default Save/Load Location:\t{0}", PrefsGUI.Prefs.GetFileLocation()), GUILayout.MinWidth(200f));
-			GUILayout.Label("\t(To change 'default Location', change in Unity Editor)"
-				#if (UNITY_EDITOR == false)
-				+ " and rebuild .exe"
-				#endif
-				);
+			ChangeDefaultLocationGUI();
 			
 			GUILayout.Label("");
 			GUILayout.Label(string.Format("File Last Loaded From:\t{0}", fileLastLoadedFrom));
@@ -106,7 +109,7 @@ namespace PrefsGUI
 				System.DateTime dt = PrefsGUI.Prefs.GetFileTimeStamp();
 				bool validSettingFile = dt.Equals(System.DateTime.MinValue) == false;
 
-				GUILayout.Label(string.Format("{0}:\t {1}", i, validSettingFile ? dt.ToString() : "No File / Unknown"));
+				GUILayout.Label(string.Format("     {0}:\t {1}", i, validSettingFile ? dt.ToString() : "No File / Unknown"));
 			}
 			SetFileLocation(fileLocation);
 
@@ -114,29 +117,33 @@ namespace PrefsGUI
 			base.OnGUIInternal();
 		}
 
+		protected virtual void ChangeDefaultLocationGUI()
+		{
+			GUILayout.Label("\t(To change 'default Location', change in Unity Editor)"
+				#if (UNITY_EDITOR == false)
+				+ " and rebuild .exe"
+				#endif
+				);
+		}
+
 		void ShowAllSaveLocationPathsGUI()
 		{
 			GUILayout.Label("File Paths:");
 			PrefsGUI.Prefs.FileLocation backup = PrefsGUI.Prefs.GetFileLocation();
-			GUILayout.BeginHorizontal();
-			GUILayout.BeginVertical();
+
 
 			for(int i = 0; i < (int)PrefsGUI.Prefs.FileLocation.NumLocations; ++i)
 			{
-				GUILayout.Label( ((PrefsGUI.Prefs.FileLocation)i).ToString() );
-			}
-			GUILayout.EndVertical();
+				GUILayout.BeginHorizontal();
+				GUILayout.Label("     " + ((PrefsGUI.Prefs.FileLocation)i).ToString(), GUILayout.MinWidth(150f) );
 
-			GUILayout.BeginVertical();
-			for(int i = 0; i < (int)PrefsGUI.Prefs.FileLocation.NumLocations; ++i)
-			{
 				PrefsGUI.Prefs.FileLocation f = (PrefsGUI.Prefs.FileLocation)i; 
 				SetFileLocation( f );
 				GUILayout.Label( PrefsGUI.Prefs.GetFileNameAndPath() );
-			}
-			GUILayout.EndVertical();
+				GUILayout.FlexibleSpace();
 
-			GUILayout.EndHorizontal();
+				GUILayout.EndHorizontal();
+			}
 
 			// restore origional location
 			SetFileLocation(backup);
