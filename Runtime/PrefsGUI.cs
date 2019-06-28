@@ -15,8 +15,9 @@ namespace PrefsGUI
 		// PrefsWrapperNative uses Unity's player prefs and the save location is fixed
 		public enum FileLocation
 		{
-			PersistantData,
-			StreamingAssets,
+			PersistantData,		// Windows Application's Data folder.  Inside of c:/users/<user>/AppData/...
+			StreamingAssets,	// Unity streaming assets folder
+			HardCodedPath,		// a user defined path to anywhere on the computer's hard drive
 
 			NumLocations
 		}
@@ -37,8 +38,9 @@ namespace PrefsGUI
         public static void Load() { PrefsGlobal.Load(); }
         public static void DeleteAll() { PrefsGlobal.DeleteAll(); }
 		public static void SetFileLocation( FileLocation fileLocation) { PrefsGlobal.SetFileLocation(fileLocation); }
+		public static void SetFileLocationHardCodedPath( string hardCodedPath) { PrefsGlobal.SetFileLocationHardCodedPath(hardCodedPath); }
 		public static FileLocation GetFileLocation() { return PrefsGlobal.GetFileLocation(); }
-		public static void SetFilePathPrefix(string prefix) { PrefsGlobal.SetFilePathPrefix(prefix); }
+		public static void SetFilePathPrefix(Prefs.FileLocation fileLocation, string prefix) { PrefsGlobal.SetFilePathPrefix(fileLocation, prefix); }
 		public static DateTime GetFileTimeStamp() { return PrefsGlobal.GetFileTimeStamp(); }
 		public static string GetFileNameAndPath() { return PrefsGlobal.GetFileNameAndPath(); }
     }

@@ -10,7 +10,16 @@ namespace PrefsGUI.Wrapper.Json
 
         Dictionary<string, object> _dic = new Dictionary<string, object>();
 
-        public JSONData() { Load(); }
+        public JSONData()
+		{
+			if(_PathPrefix == null)
+			{
+				_PathPrefix = new string[(int)Prefs.FileLocation.NumLocations];
+				for(int i = 0; i < _PathPrefix.Length; ++i)
+					_PathPrefix[i] = "";
+			}
+			Load();
+		}
 
         public bool HasKey(string key) { return _dic.ContainsKey(key); }
         public void DeleteKey(string key) { _dic.Remove(key); }
@@ -52,6 +61,7 @@ namespace PrefsGUI.Wrapper.Json
             if (File.Exists(path))
             {
                 var str = File.ReadAllText(path);
+				_dic.Clear();
                 _dic = (Dictionary<string, object>)MiniJSON.Json.Deserialize(str);
             }
         }
@@ -73,12 +83,14 @@ namespace PrefsGUI.Wrapper.Json
 		}
 
 		private PrefsGUI.Prefs.FileLocation _fileLocation = PrefsGUI.Prefs.FileLocation.PersistantData;
-		private string _PathPrefix = "";
+		private string _hardCodedPath = "";
+		private string[] _PathPrefix = null;
 		public void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) {	_fileLocation = fileLocation; }
+		public void SetFileLocationHardCodedPath( string hardCodedPath) { _hardCodedPath = hardCodedPath; }
 		public PrefsGUI.Prefs.FileLocation GetFileLocation() { return _fileLocation; }
-		public void SetFilePathPrefix(string prefix)
+		public void SetFilePathPrefix(Prefs.FileLocation fileLocation, string prefix)
 		{
-			_PathPrefix = prefix;
+			_PathPrefix[(int)fileLocation] = prefix;
 		}
 		private string pathPrefix
 		{
@@ -87,10 +99,11 @@ namespace PrefsGUI.Wrapper.Json
 				string ret = "";
 				switch(_fileLocation)
 				{
-					case PrefsGUI.Prefs.FileLocation.PersistantData: ret = UnityEngine.Application.persistentDataPath; break;
-					case PrefsGUI.Prefs.FileLocation.StreamingAssets: ret = UnityEngine.Application.streamingAssetsPath; break;
+					case PrefsGUI.Prefs.FileLocation.PersistantData:	ret = UnityEngine.Application.persistentDataPath; break;
+					case PrefsGUI.Prefs.FileLocation.StreamingAssets:	ret = UnityEngine.Application.streamingAssetsPath; break;
+					case PrefsGUI.Prefs.FileLocation.HardCodedPath:		ret = _hardCodedPath; break;
 				}
-				ret += _PathPrefix;
+				ret = Path.Combine(ret, _PathPrefix[(int)_fileLocation]);
 				return ret;
 			}
 		}
@@ -102,8 +115,9 @@ namespace PrefsGUI.Wrapper.Json
         public static void Load() { JSONData.Instance.Load(); }
         public static void DeleteAll() { JSONData.Instance.DeleteAll(); }
 		public static void SetFileLocation(PrefsGUI.Prefs.FileLocation fileLocation) { JSONData.Instance.SetFileLocation(fileLocation); }
+		public static void SetFileLocationHardCodedPath( string hardCodedPath) { JSONData.Instance.SetFileLocationHardCodedPath(hardCodedPath);}
 		public static PrefsGUI.Prefs.FileLocation GetFileLocation() { return JSONData.Instance.GetFileLocation(); }
-		public static void SetFilePathPrefix(string prefix) { JSONData.Instance.SetFilePathPrefix(prefix); }
+		public static void SetFilePathPrefix(Prefs.FileLocation fileLocation, string prefix) { JSONData.Instance.SetFilePathPrefix(fileLocation, prefix); }
 		public static DateTime GetFileTimeStamp() { return JSONData.Instance.GetFileTimeStamp();  }
 		public static string GetFileNameAndPath() { return JSONData.Instance.GetFileNameAndPath(); }
 
