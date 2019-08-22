@@ -33,8 +33,8 @@ public static partial class GUIUtil
 		float ret = default(float);
 		using (var h = new GUILayout.HorizontalScope())
 		{
-			if (!string.IsNullOrEmpty(label)) GUILayout.Label(label, GUILayout.ExpandWidth(false));
-			ret = GUILayout.HorizontalSlider((float)v, (float)min, (float)max, GUILayout.MinWidth(200));
+			if (!string.IsNullOrEmpty(label)) GUILayout.Label(label, GUILayout.MinWidth(60f), GUILayout.ExpandWidth(true));
+			ret = GUILayout.HorizontalSlider((float)v, (float)min, (float)max, GUILayout.MinWidth(100), GUILayout.ExpandWidth(true));
 			ret = (float)StandardField(ret, ref unparsedStr, GUILayout.MaxWidth(100f));
 		}
 
@@ -49,7 +49,7 @@ public static partial class GUIUtil
 
 		using (var h0 = new GUILayout.HorizontalScope())
 		{
-			if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
+			if (!string.IsNullOrEmpty(label)) GUILayout.Label(label, GUILayout.MinWidth(60f));
 			using (var vertical = new GUILayout.VerticalScope())
 			{
 				var strs = SplitUnparsedStr(unparsedStr, elementNum);
@@ -84,7 +84,7 @@ public static partial class GUIUtil
 
 		using (var h0 = new GUILayout.HorizontalScope())
 		{
-			if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
+			if (!string.IsNullOrEmpty(label)) GUILayout.Label(label, GUILayout.MinWidth(60f));
 			using (var vertical = new GUILayout.VerticalScope())
 			{
 				var strs = SplitUnparsedStr(unparsedStr, elementNum);
