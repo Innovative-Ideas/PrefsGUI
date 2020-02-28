@@ -219,8 +219,8 @@ namespace PrefsGUI
     {
         Func<List<T>, List<T>> _customOnGUIFunc;
 
-        public PrefsList(string key, List<T> defaultValue = default) : this(key, null, defaultValue) { }
-        public PrefsList(string key, Func<List<T>, List<T>> customOnGUIFunc, List<T> defaultValue = default) : base(key, defaultValue)
+        public PrefsList(string key, List<T> defaultValue = default(List<T>)) : this(key, null, defaultValue) { }
+        public PrefsList(string key, Func<List<T>, List<T>> customOnGUIFunc, List<T> defaultValue = default(List<T>)) : base(key, defaultValue)
         {
             _customOnGUIFunc = customOnGUIFunc;
         }
