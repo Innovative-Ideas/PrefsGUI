@@ -97,40 +97,44 @@ namespace PrefsGUI
         [ServerCallback]
         void SendPrefs()
         {
-            PrefsParam.all.Values.ToList().ForEach(prefs =>
-            {
-                var key = prefs.key;
-                if (false == _ignoreKeys.Contains(key))
-                {
-                    var obj = prefs.GetObject();
-                    if (obj != null)
-                    {
-                        var type = prefs.GetInnerType();
-                        if (type.IsEnum)
-                        {
-                            type = typeof(int);
-                            obj = Convert.ToInt32(obj);
-                        }
-
-                        TypeAndIdx ti;
-                        if (_keyToTypeIdx.TryGetValue(key, out ti))
-                        {
-                            var iSynList = _typeToSyncList[type];
-                            iSynList.Set(ti.idx, obj);
-                        }
-                        else
-                        {
-                            Assert.IsTrue(_typeToSyncList.ContainsKey(type), string.Format("type [{0}] is not supported.", type));
-                            var iSynList = _typeToSyncList[type];
-                            var idx = iSynList.Count;
-                            iSynList.Add(key, obj);
-                            _keyToTypeIdx[key] = new TypeAndIdx() { type = type, idx = idx };
-                        }
-                    }
-                }
-            });
+            var list = PrefsParam.all.Values.ToList();
+            list.ForEach( SendPref );
 
             _materialPropertyDebugMenuUpdate = MaterialPropertyDebugMenu.update;
+        }
+
+        [ServerCallback]
+        void SendPref( PrefsParam pref )
+        {
+            var key = pref.key;
+            if ( false == _ignoreKeys.Contains( key ) )
+            {
+                var obj = pref.GetObject();
+                if ( obj != null )
+                {
+                    var type = pref.GetInnerType();
+                    if ( type.IsEnum )
+                    {
+                        type = typeof( int );
+                        obj = Convert.ToInt32( obj );
+                    }
+
+                    TypeAndIdx ti;
+                    if ( _keyToTypeIdx.TryGetValue( key, out ti ) )
+                    {
+                        var iSynList = _typeToSyncList[type];
+                        iSynList.Set( ti.idx, obj );
+                    }
+                    else
+                    {
+                        Assert.IsTrue( _typeToSyncList.ContainsKey( type ), string.Format( "type [{0}] is not supported.", type ) );
+                        var iSynList = _typeToSyncList[type];
+                        var idx = iSynList.Count;
+                        iSynList.Add( key, obj );
+                        _keyToTypeIdx[ key ] = new TypeAndIdx() { type = type, idx = idx };
+                    }
+                }
+            }
         }
 
         [ClientCallback]
