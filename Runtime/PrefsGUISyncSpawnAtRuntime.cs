@@ -32,20 +32,20 @@ namespace PrefsGUI
     public class PrefsGUISyncSpawnAtRuntime : MonoBehaviour
     {
 
-        private List<string> _ignoreKeysCopy = new List<string>(); 
+        private List<string> _ignoreKeysCopy = new List<string>();
         public List<string> _ignoreKeysExtra = new List<string>(); // want use HashSet but use List so it will be serialized on Inspector
         public PrefsGUISync prefsGUISyncPrefab = null;
         private PrefsGUISync instance = null;
 
         private void Awake()
         {
-            if( Application.isPlaying )
+            if ( Application.isPlaying )
                 StartRuntime();
 
         }
 
         // Use this for initialization
-        void Start () 
+        void Start()
         {
 
         }
@@ -59,16 +59,16 @@ namespace PrefsGUI
         {
             if ( Application.isPlaying == false )
                 return;
-            #if UNITY_EDITOR
-                if ( UnityEditor.EditorApplication.isPlaying == false)
+#if UNITY_EDITOR
+            if ( UnityEditor.EditorApplication.isPlaying == false )
                 return;
-            #endif
+#endif
 
             if ( SyncNet.isServerOrStandAlone )
             {
                 SpawnPrefsGUISyncServerOrStandalone();
             }
-            else if( SyncNet.isSlave )
+            else if ( SyncNet.isSlave )
             {
                 SpawnPrefsGUISyncClientSlave();
             }
@@ -77,23 +77,35 @@ namespace PrefsGUI
         bool removedSceneVersion = false;
         void RemoveSceneVersion()
         {
-            if ( Time.frameCount < 3000 && removedSceneVersion == false )
+            if ( removedSceneVersion )
+                return;
+
+            if ( Time.frameCount < 3000 || Time.frameCount % 60 == 0 )
             {
-                PrefsGUISync sceneVersion = GameObject.FindObjectOfType<PrefsGUISync>();
-                if ( sceneVersion != null && sceneVersion.name.Contains( "Clone" ) == false )
+                PrefsGUISync[] sceneVersionArray = GameObject.FindObjectsOfType<PrefsGUISync>();
+                if ( sceneVersionArray == null )
+                    return;
+                for ( int i = 0; i < sceneVersionArray.Length; ++i )
                 {
-                    Debug.Log( "PrefsGUISyncOffline.SpawnPrefsGUISync() found existing PrefsGUISync. Destroying it so it will be created via runtime network spawn." );
-                    this._ignoreKeysCopy.Clear();
-                    this._ignoreKeysCopy.AddRange( sceneVersion._ignoreKeys );
-                    GameObject.Destroy( sceneVersion.gameObject );
-                    removedSceneVersion = true;
+                    PrefsGUISync sceneVersion = sceneVersionArray[i];
+                    if ( sceneVersion != null && sceneVersion.name.Contains( "Clone" ) == false )
+                    {
+                        Debug.Log( "PrefsGUISyncOffline.SpawnPrefsGUISync() found existing PrefsGUISync. Destroying it so it will be created via runtime network spawn." );
+                        this._ignoreKeysCopy.Clear();
+                        this._ignoreKeysCopy.AddRange( sceneVersion._ignoreKeys );
+                        GameObject.Destroy( sceneVersion.gameObject );
+                        removedSceneVersion = true;
+                        return; // success!
+                    }
                 }
             }
         }
 
         void SpawnPrefsGUISyncServerOrStandalone()
         {
-            if (instance != null)
+            RemoveSceneVersion();
+
+            if ( instance != null )
             {
                 if ( SyncNet.isServer )
                     NetworkServer.Spawn( instance.gameObject );
@@ -101,14 +113,14 @@ namespace PrefsGUI
             }
 
 
-//            else
+            //            else
             {
                 Debug.Log( "PrefsGUISyncOffline.SpawnPrefsGUISync() spawning PrefsGUISync prefab" );
                 Assert.IsTrue( prefsGUISyncPrefab != null, "PrefsGUISyncOffline.SpawnPrefsGUISync() Must register PrefsGUISync prefab with this game object." );
-                instance = Instantiate(prefsGUISyncPrefab);
+                instance = Instantiate( prefsGUISyncPrefab );
 
-                if(SyncNet.isServer)
-                    NetworkServer.Spawn(instance.gameObject);
+                if ( SyncNet.isServer )
+                    NetworkServer.Spawn( instance.gameObject );
             }
 
             AddIgnoreKeysToInstance();
@@ -116,7 +128,7 @@ namespace PrefsGUI
 
         void AddIgnoreKeysToInstance()
         {
-            if( instance == null)
+            if ( instance == null )
                 return;
             instance._ignoreKeys.AddRange( this._ignoreKeysCopy );
             instance._ignoreKeys.AddRange( this._ignoreKeysExtra );
@@ -135,14 +147,14 @@ namespace PrefsGUI
             AddIgnoreKeysToInstance();
         }
         // Update is called once per frame
-        void Update () 
+        void Update()
         {
 #if UNITY_EDITOR
             UpdateInEditor();
 #endif
 
-          
-                UpdateRuntime();
+
+            UpdateRuntime();
         }
 
         #region Editor
