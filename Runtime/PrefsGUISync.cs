@@ -52,6 +52,8 @@ namespace PrefsGUI
 
         public void Awake()
         {
+            GameObject.DontDestroyOnLoad(this.gameObject);
+
             _typeToSyncList = new Dictionary<Type, ISyncListKeyObj>()
             {
                 { typeof(bool),    _syncListKeyBool    },
