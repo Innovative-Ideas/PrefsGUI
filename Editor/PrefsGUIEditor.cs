@@ -148,6 +148,11 @@ namespace PrefsGUI
                 for (var i = 0; i < comps.Length; ++i)
                 {
                     var comp = comps[i];
+                    if(comp == null)
+                    {
+                        Debug.LogWarningFormat("Gameobject {0} has a null component at index {1}.", go.name, i);
+                        continue;
+                    }
                     var fields = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
                     prefsList.AddRange(SearchChildPrefsParams(comp, fields));
