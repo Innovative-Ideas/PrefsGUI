@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 using UnityEngine.Assertions;
 using System.Linq;
 
+#pragma warning disable 0618 // disable Unity warning about UNET being depreciated
+
 namespace PrefsGUI
 {
     /* This class does the following:
@@ -75,6 +77,8 @@ namespace PrefsGUI
         }
 
         bool removedSceneVersion = false;
+        // Note: this function will work on a server or host
+        // Note: On a slave client, since the version of PrefsGUISync that is part of the unity scene is disabled initialy, and stays disabled, GameObject.FindObjectsOfType() will never find it.
         void RemoveSceneVersion()
         {
             if ( removedSceneVersion )
@@ -101,12 +105,16 @@ namespace PrefsGUI
             }
         }
 
+        
         void SpawnPrefsGUISyncServerOrStandalone()
         {
             RemoveSceneVersion();
 
             if ( instance != null )
             {
+                // In the current implamentation, this function, SpawnPrefsGUISyncServerOrStandalone(), is called before the 'online scene' has loaded on the server, thus it first creates spawns the prefsGUISyncPrefab in the 'boot' scene
+                // Note: On the client, Apprently if the scene changes networkIdentities from the old scene, 'boot scene', that aren't destroyed when that scene is unloaded are disabled instead.
+                // This extra call to spawn here makes sure the NetworkIdentity game object is created for the loaded 'online scene' on the client 
                 if ( SyncNet.isServer )
                     NetworkServer.Spawn( instance.gameObject );
                 return;
@@ -119,11 +127,11 @@ namespace PrefsGUI
                 Assert.IsTrue( prefsGUISyncPrefab != null, "PrefsGUISyncOffline.SpawnPrefsGUISync() Must register PrefsGUISync prefab with this game object." );
                 instance = Instantiate( prefsGUISyncPrefab );
 
+                AddIgnoreKeysToInstance();
+
                 if ( SyncNet.isServer )
                     NetworkServer.Spawn( instance.gameObject );
             }
-
-            AddIgnoreKeysToInstance();
         }
 
         void AddIgnoreKeysToInstance()
