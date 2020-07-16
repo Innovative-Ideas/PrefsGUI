@@ -14,6 +14,7 @@ namespace PrefsGUI
         public struct KeyInt { public string key; public int _value; }
         public struct KeyUInt { public string key; public uint _value; }
         public struct KeyFloat { public string key; public float _value; }
+        public struct KeyDouble { public string key; public double _value; }
         public struct KeyString { public string key; public string _value; }
         public struct KeyVector2 { public string key; public Vector2 _value; }
         public struct KeyVector3 { public string key; public Vector3 _value; }
@@ -34,6 +35,7 @@ namespace PrefsGUI
         public class SyncListKeyInt : SyncListStruct<KeyInt>, ISyncListKeyObj { public void Add(string key, object obj) { this._Add(key, obj); } public KeyObj Get(int idx) { return this._Get(idx); } public void Set(int idx, object obj) { this._Set(idx, obj); } }
         public class SyncListKeyUInt : SyncListStruct<KeyUInt>, ISyncListKeyObj { public void Add(string key, object obj) { this._Add(key, obj); } public KeyObj Get(int idx) { return this._Get(idx); } public void Set(int idx, object obj) { this._Set(idx, obj); } }
         public class SyncListKeyFloat : SyncListStruct<KeyFloat>, ISyncListKeyObj { public void Add(string key, object obj) { this._Add(key, obj); } public KeyObj Get(int idx) { return this._Get(idx); } public void Set(int idx, object obj) { this._Set(idx, obj); } }
+        public class SyncListKeyDouble : SyncListStruct<KeyDouble>, ISyncListKeyObj { public void Add( string key, object obj ) { this._Add( key, obj ); } public KeyObj Get( int idx ) { return this._Get( idx ); } public void Set( int idx, object obj ) { this._Set( idx, obj ); } }
         public class SyncListKeyString : SyncListStruct<KeyString>, ISyncListKeyObj { public void Add(string key, object obj) { this._Add(key, obj); } public KeyObj Get(int idx) { return this._Get(idx); } public void Set(int idx, object obj) { this._Set(idx, obj); } }
         public class SyncListKeyVector2 : SyncListStruct<KeyVector2>, ISyncListKeyObj { public void Add(string key, object obj) { this._Add(key, obj); } public KeyObj Get(int idx) { return this._Get(idx); } public void Set(int idx, object obj) { this._Set(idx, obj); } }
         public class SyncListKeyVector3 : SyncListStruct<KeyVector3>, ISyncListKeyObj { public void Add(string key, object obj) { this._Add(key, obj); } public KeyObj Get(int idx) { return this._Get(idx); } public void Set(int idx, object obj) { this._Set(idx, obj); } }

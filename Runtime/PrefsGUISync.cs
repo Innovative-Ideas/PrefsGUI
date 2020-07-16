@@ -32,6 +32,7 @@ namespace PrefsGUI
         SyncListKeyInt _syncListKeyInt = new SyncListKeyInt();
         SyncListKeyUInt _syncListKeyUInt = new SyncListKeyUInt();
         SyncListKeyFloat _syncListKeyFloat = new SyncListKeyFloat();
+        SyncListKeyDouble _syncListKeyDouble = new SyncListKeyDouble();
         SyncListKeyString _syncListKeyString = new SyncListKeyString();
         SyncListKeyVector2 _syncListKeyVector2 = new SyncListKeyVector2();
         SyncListKeyVector3 _syncListKeyVector3 = new SyncListKeyVector3();
@@ -60,6 +61,7 @@ namespace PrefsGUI
                 { typeof(int),     _syncListKeyInt     },
                 { typeof(uint),    _syncListKeyUInt    },
                 { typeof(float),   _syncListKeyFloat   },
+                { typeof(double),  _syncListKeyDouble  },
                 { typeof(string),  _syncListKeyString  },
                 { typeof(Vector2), _syncListKeyVector2 },
                 { typeof(Vector3), _syncListKeyVector3 },
