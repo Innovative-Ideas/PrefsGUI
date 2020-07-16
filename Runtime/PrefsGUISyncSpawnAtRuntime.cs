@@ -165,10 +165,20 @@ namespace PrefsGUI
             UpdateRuntime();
         }
 
-        #region Editor
+		private void OnDisable()
+		{
+			Debug.Log( "PrefsGUISyncSpawnAtRuntime.OnDisable()" );
+		}
+
+		private void OnDestroy()
+		{
+            Debug.Log( "PrefsGUISyncSpawnAtRuntime.OnDestroy()" );
+        }
+
+		#region Editor
 #if UNITY_EDITOR
 
-        private float _interaval = 1f;
+		private float _interaval = 1f;
         private float _lastTime = 0f;
 
         virtual protected void UpdateInEditor()
