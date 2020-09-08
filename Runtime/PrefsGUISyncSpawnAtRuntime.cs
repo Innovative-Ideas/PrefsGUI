@@ -123,8 +123,8 @@ namespace PrefsGUI
 
             //            else
             {
-                Debug.Log( "PrefsGUISyncOffline.SpawnPrefsGUISync() spawning PrefsGUISync prefab" );
-                Assert.IsTrue( prefsGUISyncPrefab != null, "PrefsGUISyncOffline.SpawnPrefsGUISync() Must register PrefsGUISync prefab with this game object." );
+                Debug.Log( "PrefsGUISyncOffline.SpawnPrefsGUISyncServerOrStandalone() spawning PrefsGUISync prefab" );
+                Assert.IsTrue( prefsGUISyncPrefab != null, "PrefsGUISyncOffline.SpawnPrefsGUISyncServerOrStandalone() Must register PrefsGUISync prefab with this game object." );
                 instance = Instantiate( prefsGUISyncPrefab );
 
                 AddIgnoreKeysToInstance();

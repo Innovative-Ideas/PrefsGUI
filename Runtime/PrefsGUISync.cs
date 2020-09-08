@@ -50,9 +50,12 @@ namespace PrefsGUI
 
         public List<string> _ignoreKeys = new List<string>(); // want use HashSet but use List so it will be serialized on Inspector
 
-
+        static int IDMaster = -1;
+        int ID = -1;
         public void Awake()
         {
+            ID = ++IDMaster;
+            Debug.LogFormat("PrefsGUISync.Awake() ID: {0}", ID);
             GameObject.DontDestroyOnLoad(this.gameObject);
 
             _typeToSyncList = new Dictionary<Type, ISyncListKeyObj>()
@@ -71,7 +74,12 @@ namespace PrefsGUI
             };
         }
 
-        public override void OnStartServer()
+		public void OnDestroy()
+		{
+            Debug.LogFormat( "PrefsGUISync.OnDestroy() ID: {0}", ID );
+        }
+
+		public override void OnStartServer()
         {
             base.OnStartServer();
             NetworkServer.SpawnObjects();
@@ -89,10 +97,17 @@ namespace PrefsGUI
             SendPrefs();
         }
 
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         public void Update()
         {
+            //stopwatch.Reset();
+            //stopwatch.Start();
             SendPrefs();
             ReadPrefs();
+            //stopwatch.Stop();
+            //if( stopwatch.ElapsedMilliseconds > 5 )
+            //    Debug.LogFormat("PrefsGUISync.Update() (class ID: {1}) took {0} ms", stopwatch.ElapsedMilliseconds, this.ID );
+            
         }
 
 
