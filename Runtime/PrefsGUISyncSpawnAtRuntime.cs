@@ -66,7 +66,7 @@ namespace PrefsGUI
                 return;
 #endif
 
-            if ( SyncNet.isServerOrStandAlone )
+            if ( SyncNet.isServer )
             {
                 SpawnPrefsGUISyncServerOrStandalone();
             }
