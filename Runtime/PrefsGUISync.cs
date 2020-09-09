@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -97,13 +98,20 @@ namespace PrefsGUI
             SendPrefs();
         }
 
-        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+        //System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();        
         public void Update()
         {
             //stopwatch.Reset();
             //stopwatch.Start();
             SendPrefs();
-            ReadPrefs();
+            if(this.enumeratorReadPrefs == null || enumeratorReadPrefs.Current == 1)
+			{
+                enumeratorReadPrefs = ReadPrefs();
+            }
+            else
+			{
+                enumeratorReadPrefs.MoveNext();
+            }
             //stopwatch.Stop();
             //if( stopwatch.ElapsedMilliseconds > 5 )
             //    Debug.LogFormat("PrefsGUISync.Update() (class ID: {1}) took {0} ms", stopwatch.ElapsedMilliseconds, this.ID );
@@ -154,29 +162,74 @@ namespace PrefsGUI
             }
         }
 
+        System.Diagnostics.Stopwatch stopwatchReadPrefs = new System.Diagnostics.Stopwatch();
+        IEnumerator<int> enumeratorReadPrefs = null;
         [ClientCallback]
-        void ReadPrefs()
+        IEnumerator<int> ReadPrefs()
         {
             // ignore at "Host"
-            if (!NetworkServer.active)
+            if( !NetworkServer.active )
             {
+                int numYields = 0;
+                stopwatchReadPrefs.Reset();
+                stopwatchReadPrefs.Start();
                 var all = PrefsParam.all;
-                _typeToSyncList.Values.ToList().ForEach(sl =>
+                var arrayValues = _typeToSyncList.Values.ToArray();
+                for(int iV  = 0; iV < arrayValues.Length; ++iV)
                 {
-                    for (var i = 0; i < sl.Count; ++i)
+                    var sl = arrayValues[iV];
+                    for( var i = 0; i < sl.Count; ++i )
                     {
                         var keyObj = sl.Get(i);
                         PrefsParam prefs;
-                        if (all.TryGetValue(keyObj.key, out prefs))
+                        if( all.TryGetValue( keyObj.key, out prefs ) )
                         {
-                            prefs.SetObject(keyObj._value, true);
+                            prefs.SetObject( keyObj._value, true );
+                        }
+                        stopwatchReadPrefs.Stop();
+                        if(stopwatchReadPrefs.ElapsedMilliseconds > 3)
+                        { 
+                            ++numYields;
+                            yield return 0;
+                            stopwatchReadPrefs.Reset();
+                            stopwatchReadPrefs.Start();
+                        }
+                        else
+						{
+                            stopwatchReadPrefs.Start();
                         }
                     }
-                });
+                }
+                //Debug.LogFormat("ReadPrefs completed after {0} yields", numYields);
             }
 
             MaterialPropertyDebugMenu.update = _materialPropertyDebugMenuUpdate;
+            yield return 1;
         }
+
+        //[ClientCallback]
+        //void ReadPrefs()
+        //{
+        //    // ignore at "Host"
+        //    if (!NetworkServer.active)
+        //    {
+        //        var all = PrefsParam.all;
+        //        _typeToSyncList.Values.ToList().ForEach(sl =>
+        //        {
+        //            for (var i = 0; i < sl.Count; ++i)
+        //            {
+        //                var keyObj = sl.Get(i);
+        //                PrefsParam prefs;
+        //                if (all.TryGetValue(keyObj.key, out prefs))
+        //                {
+        //                    prefs.SetObject(keyObj._value, true);
+        //                }
+        //            }
+        //        });
+        //    }
+
+        //    MaterialPropertyDebugMenu.update = _materialPropertyDebugMenuUpdate;
+        //}
     }
 
 
