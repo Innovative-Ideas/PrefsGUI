@@ -1,9 +1,9 @@
 {
     "name": "Editor",
     "references": [
-        "PrefsGUI"
+        "PrefsGUI",
+        "com.unity.multiplayer-hlapi.Runtime"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -12,5 +12,7 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
