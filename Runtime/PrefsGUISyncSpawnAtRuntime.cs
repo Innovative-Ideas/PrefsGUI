@@ -80,8 +80,9 @@ namespace PrefsGUI
         }
 
         
-        // Note: this function will work on a server or host
-        // Note: On a slave client, since the version of PrefsGUISync that is part of the unity scene is disabled initialy, and stays disabled, GameObject.FindObjectsOfType() will never find it.
+        // Note 1: this function will work on a server or host
+        // Old Note 2: On a slave client, since the version of PrefsGUISync that is part of the unity scene is disabled initialy, and stays disabled, GameObject.FindObjectsOfType() will never find it.
+        // New Note 2: Revised this class so that in unity editor a reference to the PrefsGUISync is set in this class.  This removes the need to call GameObject.FindObjectsOfType().
         void RemoveSceneVersion()
         {
             if ( prefsGUISyncInitialSceneInstance == null)
@@ -97,9 +98,7 @@ namespace PrefsGUI
                 this._ignoreKeysCopy.AddRange(prefsGUISyncInitialSceneInstance._ignoreKeys );
                 GameObject.Destroy(prefsGUISyncInitialSceneInstance.gameObject );
                 prefsGUISyncInitialSceneInstance = null;
-                return; // success!
-                    
-                
+                return; // success!   
             }
         }
 
@@ -119,7 +118,7 @@ namespace PrefsGUI
             }
 
 
-            //            else
+            //else
             {
                 Debug.Log( "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncServerOrStandalone() spawning PrefsGUISync prefab" );
                 Assert.IsTrue( prefsGUISyncPrefab != null, "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncServerOrStandalone() Must register PrefsGUISync prefab with this game object." );
@@ -141,6 +140,7 @@ namespace PrefsGUI
             instance._ignoreKeys = instance._ignoreKeys.Distinct().ToList(); // make sure there are no duplicate keys
         }
 
+        int counterClientFindPrefsGUISync = 0;
         void SpawnPrefsGUISyncClientSlave()
         {
             RemoveSceneVersion();
@@ -148,9 +148,16 @@ namespace PrefsGUI
             if ( instance != null )
                 return;
 
-            Debug.Log("SpawnPrefsGUISyncClientSlave() is calling  GameObject.FindObjectOfType<PrefsGUISync>()");
-            instance = GameObject.FindObjectOfType<PrefsGUISync>();
-            AddIgnoreKeysToInstance();
+            if( Time.frameCount < 3000 || Time.frameCount % 30 == 0 )
+            { 
+                Debug.LogFormat("{0} SpawnPrefsGUISyncClientSlave() is calling GameObject.FindObjectOfType<PrefsGUISync>() call count: {1}", System.DateTime.Now, ++counterClientFindPrefsGUISync );
+                instance = GameObject.FindObjectOfType<PrefsGUISync>();
+                if( instance != null )
+			    {
+                    Debug.Log( "SpawnPrefsGUISyncClientSlave() GameObject.FindObjectOfType<PrefsGUISync>() FOUND PrefsGUISync" );
+                }
+                AddIgnoreKeysToInstance();
+            }
         }
         // Update is called once per frame
         void Update()
