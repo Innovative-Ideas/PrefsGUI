@@ -148,7 +148,7 @@ namespace PrefsGUI
             if ( instance != null )
                 return;
 
-            if( Time.frameCount < 3000 || Time.frameCount % 30 == 0 )
+            if( /*Time.frameCount < 3000 ||*/ Time.frameCount % 30 == 0 )
             { 
                 Debug.LogFormat( "{0} PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncClientSlave() is calling GameObject.FindObjectOfType<PrefsGUISync>() call count: {1}", System.DateTime.Now, ++counterClientFindPrefsGUISync );
                 instance = GameObject.FindObjectOfType<PrefsGUISync>();
