@@ -150,11 +150,11 @@ namespace PrefsGUI
 
             if( Time.frameCount < 3000 || Time.frameCount % 30 == 0 )
             { 
-                Debug.LogFormat("{0} SpawnPrefsGUISyncClientSlave() is calling GameObject.FindObjectOfType<PrefsGUISync>() call count: {1}", System.DateTime.Now, ++counterClientFindPrefsGUISync );
+                Debug.LogFormat( "{0} PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncClientSlave() is calling GameObject.FindObjectOfType<PrefsGUISync>() call count: {1}", System.DateTime.Now, ++counterClientFindPrefsGUISync );
                 instance = GameObject.FindObjectOfType<PrefsGUISync>();
                 if( instance != null )
 			    {
-                    Debug.Log( "SpawnPrefsGUISyncClientSlave() GameObject.FindObjectOfType<PrefsGUISync>() FOUND PrefsGUISync" );
+                    Debug.Log( "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncClientSlave() GameObject.FindObjectOfType<PrefsGUISync>() FOUND PrefsGUISync" );
                 }
                 AddIgnoreKeysToInstance();
             }
@@ -218,12 +218,12 @@ namespace PrefsGUI
 
                 networkManager.spawnPrefabs.Add( prefab );
 #if UNITY_EDITOR
-                UnityEditor.Undo.RecordObject( networkManager, "undo Add SpawnPrefab" );
+                UnityEditor.Undo.RecordObject( networkManager, "PrefsGUISyncSpawnAtRuntime.AddPrefabToNetworkManager(): undo Add SpawnPrefab" );
                 UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
                 UnityEditor.EditorUtility.SetDirty( networkManager );
                 //UnityEditor.SerializedObject.
 #endif
-                Debug.LogFormat( "System adds {0} to Network Manager prefab list", prefab.name );
+                Debug.LogFormat( "PrefsGUISyncSpawnAtRuntime.AddPrefabToNetworkManager(): System adds {0} to Network Manager prefab list", prefab.name );
 
             }
         }
