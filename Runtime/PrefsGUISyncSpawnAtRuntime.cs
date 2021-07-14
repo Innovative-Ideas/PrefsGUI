@@ -91,9 +91,9 @@ namespace PrefsGUI
             if ( Time.frameCount < 3000 || Time.frameCount % 60 == 0 )
             {
                 
-                Debug.LogFormat("PrefsGUISyncSpawnAtRuntime.RemoveSceneVersion() is removing scene version of PrefsGUI from editor named: {0}", prefsGUISyncInitialSceneInstance.name);
+                Debug.LogFormat("PrefsGUISyncSpawnAtRuntime.RemoveSceneVersion() is removing scene version of PrefsGUI from editor named: {0}, net ID: {1}", prefsGUISyncInitialSceneInstance.name, prefsGUISyncInitialSceneInstance.netId);
 
-                Debug.Log( "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISync() found existing PrefsGUISync. Destroying it so it will be created via runtime network spawn." );
+               // Debug.Log( "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISync() found existing PrefsGUISync. Destroying it so it will be created via runtime network spawn." );
                 this._ignoreKeysCopy.Clear();
                 this._ignoreKeysCopy.AddRange(prefsGUISyncInitialSceneInstance._ignoreKeys );
                 GameObject.Destroy(prefsGUISyncInitialSceneInstance.gameObject );
@@ -120,7 +120,6 @@ namespace PrefsGUI
 
             //else
             {
-                Debug.Log( "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncServerOrStandalone() spawning PrefsGUISync prefab" );
                 Assert.IsTrue( prefsGUISyncPrefab != null, "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncServerOrStandalone() Must register PrefsGUISync prefab with this game object." );
                 instance = Instantiate( prefsGUISyncPrefab );
 
@@ -128,6 +127,7 @@ namespace PrefsGUI
 
                 if ( SyncNet.isServer )
                     NetworkServer.Spawn( instance.gameObject );
+                Debug.LogFormat( "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncServerOrStandalone() spawning PrefsGUISync prefab. instance name {0}, net ID {1}", instance.gameObject.name, instance.netId );
             }
         }
 
@@ -154,7 +154,7 @@ namespace PrefsGUI
                 instance = GameObject.FindObjectOfType<PrefsGUISync>();
                 if( instance != null )
 			    {
-                    Debug.Log( "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncClientSlave() GameObject.FindObjectOfType<PrefsGUISync>() FOUND PrefsGUISync" );
+                    Debug.LogFormat( "PrefsGUISyncSpawnAtRuntime.SpawnPrefsGUISyncClientSlave() GameObject.FindObjectOfType<PrefsGUISync>() FOUND PrefsGUISync name {0}, netid {1}", instance.gameObject.name, instance.netId );
                 }
                 AddIgnoreKeysToInstance();
             }
